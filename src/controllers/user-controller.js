@@ -1,6 +1,32 @@
 const db = require("../models/user-model");
 const { hash, checkPass } = require("../utils/encrypt");
 const { generateToken } = require("../services/auth/generate-token");
+const randToken = require("rand-token");
+const { sessionData } = require("../session/session");
+
+async function refreshToken(req, res, next) {
+  const { nickName, refreshToken } = req.body;
+
+  try {
+    if (
+      refreshToken in sessionData.refreshTokens &&
+      sessionData.refreshTokens[refreshToken] === nickName
+    ) {
+      console.log("Fins aquí");
+      const accessToken = generateToken({ nickName: nickName });
+
+      return res.status(200).send({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        message: `Welcome ${nickName}`,
+      });
+    }
+  } catch (err) {
+    return res.status(401).send({
+      error: err,
+    });
+  }
+}
 
 async function getUsers(req, res, next) {
   try {
@@ -56,10 +82,15 @@ async function logIn(req, res, next) {
       const isValid = await checkPass(password, user.password);
 
       if (isValid) {
-        const accessToken = generateToken(nickName);
+        const accessToken = generateToken({ nickName: nickName });
+        const refreshToken = randToken.generate(256);
+
+        sessionData.refreshTokens[refreshToken] = nickName;
+
         res.status(200).send({
           isSuccessful: true,
           accessToken: accessToken,
+          refreshToken: refreshToken,
           data: "You're in!",
         });
       } else {
@@ -69,9 +100,7 @@ async function logIn(req, res, next) {
       }
     }
   } catch (err) {
-    return res.status(500).send({
-      error: err,
-    });
+    return res.status(500).send("Something went wrong");
   }
 }
 
@@ -102,4 +131,5 @@ module.exports = {
   deleteUser: deleteUser,
   getSingleUser: getSingleUser,
   logIn: logIn,
+  refreshToken: refreshToken,
 };

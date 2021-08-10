@@ -9,7 +9,7 @@ const {
   MONGODB_URL_PRODUCTION,
   ENCRYPTION_SALT_DEVELOPMENT,
   ENCRYPTION_SALT_PRODUCTION,
-  ACCES_TOKEN_SECRET,
+  ACCESS_TOKEN_SECRET,
   PORT = 4000,
 } = process.env;
 
@@ -26,7 +26,7 @@ const CONFIG = {
       salt: ENCRYPTION_SALT_DEVELOPMENT,
     },
     auth: {
-      token: ACCES_TOKEN_SECRET,
+      token: ACCESS_TOKEN_SECRET,
     },
   },
   production: {
@@ -40,7 +40,7 @@ const CONFIG = {
       salt: ENCRYPTION_SALT_PRODUCTION,
     },
     auth: {
-      token: ACCES_TOKEN_SECRET,
+      token: ACCESS_TOKEN_SECRET,
     },
   },
 };

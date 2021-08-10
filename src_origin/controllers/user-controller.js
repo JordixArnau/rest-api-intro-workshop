@@ -19,7 +19,6 @@ async function signUp(req, res, next) {
       email,
     });
   } catch (err) {
-    console.log(err);
     next(err);
   }
 }
