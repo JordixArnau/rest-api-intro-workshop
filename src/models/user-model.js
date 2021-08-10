@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = require("mongoose");
 const { isEmail } = require("validator");
 
-const UserSchema = new Schema(
+const UserSchema = Schema(
   {
     nickName: {
       type: String,
@@ -20,12 +20,14 @@ const UserSchema = new Schema(
         validator: (value) => isEmail[value],
         message: (props) => `This, ${props.value}, is not a valid email!`,
       },
-      password: String,
     },
+    password: String,
   },
   { timestamps: true },
 );
 
 const User = mongoose.model("user", UserSchema);
 
-module.exports = User;
+module.exports = {
+  User: User,
+};

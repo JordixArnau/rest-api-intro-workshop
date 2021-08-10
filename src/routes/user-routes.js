@@ -1,13 +1,22 @@
-const db = require("../models/user-model");
+const Router = require("express").Router;
 
-async function getUsers(req, res, next) {
-  try {
-    const users = await db.User.find({}).lean();
+const {
+  getUsers,
+  getSingleUser,
+  signUp,
+  logIn,
+  deleteUser,
+} = require("../controllers/user-controller");
 
-    res.status(200).send({ data: users });
-  } catch (err) {
-    next(error);
-  }
-}
+const UserRouter = Router();
 
-module.exports = { getUsers: getUsers };
+UserRouter.delete("/del/:userId", deleteUser);
+UserRouter.get("/:userId", getSingleUser);
+UserRouter.post("/signup", signUp);
+UserRouter.get("/login", logIn);
+UserRouter.get("/", getUsers);
+
+module.exports = {
+  UserRouter,
+  Router,
+};
