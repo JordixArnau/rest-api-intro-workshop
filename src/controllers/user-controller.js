@@ -1,24 +1,23 @@
 const db = require("../models/user-model");
-const { hash, checkPass } = require("../utils/encrypt");
 const { generateToken } = require("../services/auth/generate-token");
 const randToken = require("rand-token");
 const { sessionData } = require("../session/session");
 
 async function refreshToken(req, res, next) {
-  const { nickName, refreshToken } = req.body;
+  const { email, refreshToken } = req.body;
 
   try {
     if (
       refreshToken in sessionData.refreshTokens &&
-      sessionData.refreshTokens[refreshToken] === nickName
+      sessionData.refreshTokens[refreshToken] === email
     ) {
       console.log("Fins aquí");
-      const accessToken = generateToken({ nickName: nickName });
+      const accessToken = generateToken({ email: email });
 
       return res.status(200).send({
         accessToken: accessToken,
         refreshToken: refreshToken,
-        message: `Welcome ${nickName}`,
+        message: `Welcome ${email}`,
       });
     }
   } catch (err) {
@@ -50,42 +49,42 @@ async function getSingleUser(req, res, next) {
 }
 
 async function signUp(req, res, next) {
-  const { nickName, firstName, lastName, email, password } = req.body;
-  const encrypted = await hash(password);
+  const { uid, email } = req.user;
 
   try {
-    const { _id } = await db.User.create({
-      nickName: nickName,
-      firstName: firstName,
-      lastName: lastName,
+    const user = await db.User.findOne({ email: email });
+
+    if (user) {
+      return res.sendStatus(200);
+    }
+
+    const newUser = await db.User.create({
+      _id: uid,
       email: email,
-      password: encrypted,
     });
 
-    res.status(201).send({
-      id: _id,
-    });
+    res.status(201);
   } catch (err) {
-    "Error: " + err;
+    next(err);
   }
 }
 
 async function logIn(req, res, next) {
-  const { nickName, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    if (nickName) {
+    if (email) {
       const user = await db.User.findOne({
-        nickName: nickName,
+        email: email,
       });
 
       const isValid = await checkPass(password, user.password);
 
       if (isValid) {
-        const accessToken = generateToken({ nickName: nickName });
+        const accessToken = generateToken({ email: email });
         const refreshToken = randToken.generate(256);
 
-        sessionData.refreshTokens[refreshToken] = nickName;
+        sessionData.refreshTokens[refreshToken] = email;
 
         res.status(200).send({
           isSuccessful: true,

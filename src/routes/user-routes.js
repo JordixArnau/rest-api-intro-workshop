@@ -1,5 +1,5 @@
 const Router = require("express").Router;
-const { authMiddleware } = require("../middlewares/auth-middleware");
+const { firebaseMiddleware } = require("../middlewares/firebase-middleware");
 
 const {
   getUsers,
@@ -14,10 +14,10 @@ const UserRouter = Router();
 
 UserRouter.delete("/del/:userId", deleteUser);
 UserRouter.get("/:userId", getSingleUser);
-UserRouter.post("/signup", signUp);
-UserRouter.post("/login", logIn);
+UserRouter.post("/sign-up", firebaseMiddleware, signUp);
+UserRouter.post("/login", firebaseMiddleware, signUp);
 UserRouter.post("/refresh", refreshToken);
-UserRouter.get("/", authMiddleware, getUsers);
+UserRouter.get("/", firebaseMiddleware, getUsers);
 
 module.exports = {
   UserRouter,

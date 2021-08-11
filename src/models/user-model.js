@@ -4,6 +4,7 @@ const { isEmail } = require("validator");
 
 const UserSchema = Schema(
   {
+    _id: String,
     nickName: {
       type: String,
       unique: true,
@@ -21,7 +22,6 @@ const UserSchema = Schema(
         message: (props) => `This, ${props.value}, is not a valid email!`,
       },
     },
-    password: String,
   },
   { timestamps: true },
 );
